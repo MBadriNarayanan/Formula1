@@ -1,7 +1,7 @@
 {
     "Data":{
         "dataDirectory": "/content/drive/MyDrive/FormulaOneProject/Project/Data",
-        "validYears": "2018,2019,2020,2021,2022,2023",
+        "validYears": "2018,2019,2020,2021,2022",
         "validResultColumns": "DriverNumber,BroadcastName,Abbreviation,DriverId,TeamName,TeamColor,TeamId,FirstName,LastName,FullName,Position,ClassifiedPosition,GridPosition,Q1,Q2,Q3,Time,Status,Points",
         "validLapColumns": "Time,Driver,DriverNumber,LapTime,LapNumber,Stint,PercentageLapsCompleted,PitOutTime,PitInTime,Sector1Time,Sector2Time,Sector3Time,Sector1SessionTime,Sector2SessionTime,Sector3SessionTime,SpeedI1,SpeedI2,SpeedFL,SpeedST,IsPersonalBest,Compound,SwitchedCompounds,TyreLife,FreshTyre,Team,LapStartTime,LapStartDate,TrackStatus,Position,Deleted,DeletedReason,FastF1Generated,IsAccurate" 
     }
