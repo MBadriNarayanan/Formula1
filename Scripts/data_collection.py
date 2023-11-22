@@ -14,8 +14,27 @@ def main():
 
     data_directory = config["Data"]["dataDirectory"]
     valid_years = [int(x) for x in config["Data"]["validYears"].split(",")]
-    valid_result_columns = config["Data"]["validResultColumns"].split(",")
-    valid_lap_columns = config["Data"]["validLapColumns"].split(",")
+
+    valid_result_columns_one = config["Data"]["validResultColumnsOne"].split(",")
+    valid_result_columns_two = config["Data"]["validResultColumnsTwo"].split(",")
+    valid_result_columns = valid_result_columns_one + valid_result_columns_two
+
+    valid_lap_columns_one = config["Data"]["validLapColumnsOne"].split(",")
+    valid_lap_columns_two = config["Data"]["validLapColumnsTwo"].split(",")
+    valid_lap_columns_three = config["Data"]["validLapColumnsThree"].split(",")
+    valid_lap_columns_four = config["Data"]["validLapColumnsFour"].split(",")
+    valid_lap_columns_five = config["Data"]["validLapColumnsFive"].split(",")
+    valid_lap_columns_six = config["Data"]["validLapColumnsSix"].split(",")
+    valid_lap_columns_seven = config["Data"]["validLapColumnsSeven"].split(",")
+    valid_lap_columns = (
+        valid_lap_columns_one
+        + valid_lap_columns_two
+        + valid_lap_columns_three
+        + valid_lap_columns_four
+    )
+    valid_lap_columns += (
+        valid_lap_columns_five + valid_lap_columns_six + valid_lap_columns_seven
+    )
 
     create_data_frame(
         data_directory, valid_years, valid_result_columns, valid_lap_columns
