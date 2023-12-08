@@ -428,12 +428,14 @@ def preprocess_dataframe(data_directory):
             )
             lap_df["PitTimeDifference"] = lap_df.apply(
                 lambda x: get_pit_stop_duration(
-                    x["PitInTimeInSeconds"] - x["PitOutTimeInSeconds"]
+                    x["PitInTimeInSeconds"], x["PitOutTimeInSeconds"]
                 ),
                 axis=1,
             )
             lap_df = generate_labels(lap_df)
-            preprocessed_lap_csv_path = os.path.join(grand_prix_path, "PreprocessedLapData.csv")
+            preprocessed_lap_csv_path = os.path.join(
+                grand_prix_path, "PreprocessedLapData.csv"
+            )
             lap_df.to_csv(preprocessed_lap_csv_path, index=False)
             year_dataframe = pd.concat([year_dataframe, lap_df])
         year_dataframe = year_dataframe.reset_index(drop=True)
@@ -445,12 +447,14 @@ def preprocess_dataframe(data_directory):
 
 def filter_dataframe(data_directory):
     lap_dataframe_path = os.path.join(data_directory, "LapData.csv")
-    preprocessed_lap_dataframe_path = os.path.join(data_directory, "PreprocessedLapData.csv")
+    preprocessed_lap_dataframe_path = os.path.join(
+        data_directory, "PreprocessedLapData.csv"
+    )
     dataframe = pd.read_csv(lap_dataframe_path)
-    df = dataframe.loc[dataframe['LabelCompound'] != 4]
-    df = df.loc[df['FinishingPosition'] <= 10]
+    df = dataframe.loc[dataframe["LabelCompound"] != 4]
+    df = df.loc[df["FinishingPosition"] <= 10]
     df = df.loc[df["PitTimeDifference"] <= 50]
     df = df.loc[df["LapTimeInSeconds"] <= 200]
     df = df.loc[(df["LapsCompleted"] >= 0.1) & (df["LapsCompleted"] <= 0.9)]
-    df = df.reset_index(drop = True)
-    dataframe.to_csv(preprocessed_lap_dataframe_path, index = False)
+    df = df.reset_index(drop=True)
+    dataframe.to_csv(preprocessed_lap_dataframe_path, index=False)
