@@ -10,6 +10,6 @@
         "validLapColumnsFour": "TrackStatus,Position,Deleted,DeletedReason,FastF1Generated,IsAccurate",
         "validLapColumnsFive": "LabelCompound,LapsCompleted,TyreAge,SwitchedCompounds,CloseLeader,ClosePursuer,RaceTrackStatus,FCYStatus",
         "validLapColumnsSix": "PrevFollowerPitted,PrevFollowerStint,PrevFollowerPace,InFrontPace,InFrontTime",
-        "validLapColumnsSeven": "InFrontStint,InFrontPitted,PursuerPace,PursuerTime,PursuerStint,FastestLap,FastestLapOfRace"
+        "validLapColumnsSeven": "InFrontStint,InFrontPitted,PursuerPace,PursuerTime,PursuerStint,FastestLapOfRace"
     }
 }
