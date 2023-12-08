@@ -5,7 +5,6 @@ import shutil
 import numpy as np
 import pandas as pd
 
-from collections import Counter
 from tqdm import tqdm
 
 race_track_status = {
@@ -287,6 +286,28 @@ def construct_lap_data(lap_data):
     return lap_df
 
 
+def convert_time_to_seconds(lap_time):
+    if lap_time != lap_time:
+        return np.nan
+    return lap_time.total_seconds()
+
+
+def get_total_pit_stops(lap_data, result_data):
+    driver_number = result_data.loc[result_data["Position"] == 1].reset_index(drop=True)
+    driver_number = driver_number.iloc[0]["DriverNumber"]
+    pit_stop_info = lap_data.loc[lap_data["DriverNumber"] == driver_number].reset_index(
+        drop=True
+    )
+    total_pit_stops = pit_stop_info.iloc[-1]["Stint"]
+    return total_pit_stops
+
+
+def remaining_pit_stops(pit_stop, total_pit_stop):
+    if pit_stop != pit_stop:
+        return -1
+    return abs(total_pit_stop - pit_stop)
+
+
 def create_data_frame(
     data_directory, valid_years, valid_result_columns, valid_lap_columns
 ):
@@ -309,6 +330,10 @@ def create_data_frame(
                 lap_data = session.laps
                 total_laps = session.total_laps
 
+                result_dict = {
+                    row["DriverNumber"]: row["Position"]
+                    for idx, row in result_data.iterrows()
+                }
                 lap_data["LabelCompound"] = lap_data["Compound"].apply(
                     lambda x: convert_compound(x)
                 )
@@ -317,6 +342,22 @@ def create_data_frame(
                 )
                 lap_data["TyreAge"] = lap_data["TyreLife"].apply(
                     lambda x: get_percentage(x, total_laps)
+                )
+                lap_data["FinishingPosition"] = lap_data["DriverNumber"].apply(
+                    lambda x: int(result_dict[x])
+                )
+                lap_data["LapTimeInSeconds"] = lap_data["LapTime"].apply(
+                    lambda x: convert_time_to_seconds(x)
+                )
+                lap_data["PitInTimeInSeconds"] = lap_data["PitInTime"].apply(
+                    lambda x: convert_time_to_seconds(x)
+                )
+                lap_data["PitOutTimeInSeconds"] = lap_data["PitOutTime"].apply(
+                    lambda x: convert_time_to_seconds(x)
+                )
+                total_pit_stops = get_total_pit_stops(lap_data, result_data)
+                lap_data["RemainingPitStops"] = lap_data["Stint"].apply(
+                    lambda x: remaining_pit_stops(x, total_pit_stops)
                 )
                 lap_data = get_switched_compounds_data(lap_data, result_data)
                 lap_data = get_close_pursuer_leader(lap_data, total_laps)
@@ -345,116 +386,3 @@ def create_data_frame(
 
                 result_data = result_data[valid_result_columns].reset_index(drop=True)
                 result_data.to_csv(result_filepath, index=False)
-
-
-def convert_time_to_seconds(x):
-    if x != x:
-        return np.nan
-    lap_time = x.split("days")[1].strip().split(":")
-    total_time = (
-        (float(lap_time[0]) * 3600) + (float(lap_time[1]) * 60) + (float(lap_time[2]))
-    )
-    return total_time
-
-
-def convert_time_to_seconds(x):
-    if x != x:
-        return np.nan
-    lap_time = x.split("days")[1].strip().split(":")
-    total_time = (
-        (float(lap_time[0]) * 3600) + (float(lap_time[1]) * 60) + (float(lap_time[2]))
-    )
-    return total_time
-
-
-def get_pit_stop_duration(in_time, out_time):
-    if (in_time == in_time) and (out_time == out_time):
-        return abs(in_time - out_time)
-    return np.nan
-
-
-def generate_labels(lap_df):
-    pit_stop_dict = {}
-    for driver_name in Counter(lap_df["Driver"]).keys():
-        driver_df = lap_df.loc[lap_df["Driver"] == driver_name]
-        index_list = list(driver_df.index)
-        for index in range(len(index_list)):
-            current_index = index_list[index]
-            current_stint = lap_df.iloc[current_index]["Stint"]
-
-            previous_index = index_list[index - 1]
-            previous_stint = lap_df.iloc[previous_index]["Stint"]
-
-            if current_stint != current_stint:
-                pit_stop_dict[current_index] = -1
-            else:
-                if current_stint != previous_stint:
-                    pit_stop_dict[current_index] = 1
-                else:
-                    pit_stop_dict[current_index] = 0
-    lap_df["PitStop"] = -500
-    lap_df.loc[list(pit_stop_dict.keys()), "PitStop"] = list(pit_stop_dict.values())
-    return lap_df
-
-
-def preprocess_dataframe(data_directory):
-    lap_dataframe = pd.DataFrame()
-    lap_dataframe_path = os.path.join(data_directory, "LapData.csv")
-    for year_name in os.listdir(data_directory):
-        year_path = os.path.join(data_directory, year_name)
-        year_dataframe = pd.DataFrame()
-        year_dataframe_path = os.path.join(year_path, "LapData.csv")
-        for grand_prix in os.listdir(year_path):
-            grand_prix_path = os.path.join(year_path, grand_prix)
-            lap_csv_path = os.path.join(grand_prix_path, "LapData.csv")
-            result_csv_path = os.path.join(grand_prix_path, "Result.csv")
-            lap_df = pd.read_csv(lap_csv_path)
-            result_df = pd.read_csv(result_csv_path)
-            result_dict = {
-                row["DriverNumber"]: row["Position"]
-                for idx, row in result_df.iterrows()
-            }
-            lap_df["FinishingPosition"] = lap_df["DriverNumber"].apply(
-                lambda x: int(result_dict[x])
-            )
-            lap_df["LapTimeInSeconds"] = lap_df["LapTime"].apply(
-                lambda x: convert_time_to_seconds(x)
-            )
-            lap_df["PitInTimeInSeconds"] = lap_df["PitInTime"].apply(
-                lambda x: convert_time_to_seconds(x)
-            )
-            lap_df["PitOutTimeInSeconds"] = lap_df["PitOutTime"].apply(
-                lambda x: convert_time_to_seconds(x)
-            )
-            lap_df["PitTimeDifference"] = lap_df.apply(
-                lambda x: get_pit_stop_duration(
-                    x["PitInTimeInSeconds"], x["PitOutTimeInSeconds"]
-                ),
-                axis=1,
-            )
-            lap_df = generate_labels(lap_df)
-            preprocessed_lap_csv_path = os.path.join(
-                grand_prix_path, "PreprocessedLapData.csv"
-            )
-            lap_df.to_csv(preprocessed_lap_csv_path, index=False)
-            year_dataframe = pd.concat([year_dataframe, lap_df])
-        year_dataframe = year_dataframe.reset_index(drop=True)
-        year_dataframe.to_csv(year_dataframe_path, index=False)
-        lap_dataframe = pd.concat([lap_dataframe, year_dataframe])
-    lap_dataframe = lap_dataframe.reset_index(drop=True)
-    lap_dataframe.to_csv(lap_dataframe_path, index=False)
-
-
-def filter_dataframe(data_directory):
-    lap_dataframe_path = os.path.join(data_directory, "LapData.csv")
-    preprocessed_lap_dataframe_path = os.path.join(
-        data_directory, "PreprocessedLapData.csv"
-    )
-    dataframe = pd.read_csv(lap_dataframe_path)
-    df = dataframe.loc[dataframe["LabelCompound"] != 4]
-    df = df.loc[df["FinishingPosition"] <= 10]
-    df = df.loc[df["PitTimeDifference"] <= 50]
-    df = df.loc[df["LapTimeInSeconds"] <= 200]
-    df = df.loc[(df["LapsCompleted"] >= 0.1) & (df["LapsCompleted"] <= 0.9)]
-    df = df.reset_index(drop=True)
-    dataframe.to_csv(preprocessed_lap_dataframe_path, index=False)
