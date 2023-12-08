@@ -406,7 +406,7 @@ def preprocess_dataframe(data_directory):
         year_dataframe_path = os.path.join(year_path, "LapData.csv")
         for grand_prix in os.listdir(year_path):
             grand_prix_path = os.path.join(year_path, grand_prix)
-            lap_csv_path = os.path.join(grand_prix_path, "PreprocessedLapData.csv")
+            lap_csv_path = os.path.join(grand_prix_path, "LapData.csv")
             result_csv_path = os.path.join(grand_prix_path, "Result.csv")
             lap_df = pd.read_csv(lap_csv_path)
             result_df = pd.read_csv(result_csv_path)
@@ -433,7 +433,8 @@ def preprocess_dataframe(data_directory):
                 axis=1,
             )
             lap_df = generate_labels(lap_df)
-            lap_df.to_csv(lap_csv_path, index=False)
+            preprocessed_lap_csv_path = os.path.join(grand_prix_path, "PreprocessedLapData.csv")
+            lap_df.to_csv(preprocessed_lap_csv_path, index=False)
             year_dataframe = pd.concat([year_dataframe, lap_df])
         year_dataframe = year_dataframe.reset_index(drop=True)
         year_dataframe.to_csv(year_dataframe_path, index=False)
