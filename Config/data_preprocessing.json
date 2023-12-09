@@ -1,5 +1,7 @@
 {
     "Data":{
-        "dataDirectory": "/content/drive/MyDrive/FormulaOneProject/Project/Data"
+        "dataDirectory": "/content/drive/MyDrive/FormulaOneProject/Project/Data",
+        "validLapColumnsOne": "DriverNumber,TyreAge,SwitchedCompounds,Position,CloseLeader,LapsCompleted",
+        "validLapColumnsTwo": "LabelCompound,RaceTrackStatus,FCYStatus,PrevFollowerPitted,InFrontPitted,RemainingPitStops,PitStop"
     }
 }
