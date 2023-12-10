@@ -1,0 +1,19 @@
+{
+    "Data": {
+        "sequencePath": "/content/drive/MyDrive/FormulaOneProject/Project/Data/LapSequence.npy",
+        "labelPath": "/content/drive/MyDrive/FormulaOneProject/Project/Data/LabelSequence.npy",
+        "valSize": 0.2,
+        "testSize": 0.5
+    },
+    "Model": {
+        "modelFlag": "lstm",
+        "bidirectionalFlag": false,
+        "recurrentUnits": 64,
+        "dropoutValue": 0.2,
+        "sequenceSize": 4,
+        "numberOfFeatures": 12,
+        "logsDirectory": "/content/drive/MyDrive/FormulaOneProject/Project/Logs",
+        "numberOfEpochs": 10,
+        "batchSize": 32
+    }
+}
