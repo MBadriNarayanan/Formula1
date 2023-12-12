@@ -12,6 +12,7 @@ from sklearn.metrics import (
     confusion_matrix,
 )
 from sklearn.model_selection import train_test_split
+from tensorflow.keras import regularizers
 from tensorflow.keras.callbacks import EarlyStopping
 from keras.models import load_model, Sequential
 from keras.layers import Bidirectional, Dense, LSTM, SimpleRNN
@@ -108,6 +109,7 @@ def create_model(
     number_of_features,
 ):
     num_classes = 1
+    l2_regularizer = 0.0005
     input_shape = (sequence_size, number_of_features)
 
     model = Sequential()
@@ -119,6 +121,7 @@ def create_model(
                         units=recurrent_units,
                         dropout=dropout_value,
                         input_shape=input_shape,
+                        recurrent_regularizer=regularizers.l2(l2_regularizer),
                     )
                 )
             )
@@ -128,6 +131,7 @@ def create_model(
                     units=recurrent_units,
                     dropout=dropout_value,
                     input_shape=input_shape,
+                    recurrent_regularizer=regularizers.l2(l2_regularizer),
                 )
             )
     else:
@@ -138,6 +142,7 @@ def create_model(
                         units=recurrent_units,
                         dropout=dropout_value,
                         input_shape=input_shape,
+                        recurrent_regularizer=regularizers.l2(l2_regularizer),
                     )
                 )
             )
@@ -147,11 +152,24 @@ def create_model(
                     units=recurrent_units,
                     dropout=dropout_value,
                     input_shape=input_shape,
+                    recurrent_regularizer=regularizers.l2(l2_regularizer),
                 )
             )
-    model.add(Dense(128, activation="relu"))
-    model.add(Dense(32, activation="relu"))
-    model.add(Dense(num_classes, activation="sigmoid"))
+    model.add(
+        Dense(
+            128, activation="relu", kernel_regularizer=regularizers.l2(l2_regularizer)
+        )
+    )
+    model.add(
+        Dense(32, activation="relu", kernel_regularizer=regularizers.l2(l2_regularizer))
+    )
+    model.add(
+        Dense(
+            num_classes,
+            activation="sigmoid",
+            kernel_regularizer=regularizers.l2(l2_regularizer),
+        )
+    )
     print(model.summary())
     return model
 
@@ -161,6 +179,7 @@ def train_model(
 ):
     loss_function = "binary_crossentropy"
     optimizer_function = "adam"
+    class_weights = {0: 1, 1: 10}
     image_path = os.path.join(logs_directory, "loss.png")
     model_path = os.path.join(logs_directory, "model.keras")
 
@@ -179,6 +198,7 @@ def train_model(
         validation_data=(X_val, y_val),
         batch_size=batch_size,
         verbose=1,
+        class_weight=class_weights,
         callbacks=callbacks,
     )
     model.save(model_path)
